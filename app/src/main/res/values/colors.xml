@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+<!--COLORES DE LA LINEA DE LA VIDA-->
+    <color name="linea1">#C3C3C3</color>
+    <color name="linea2">#F43</color>
+    <color name="linea3">#F27</color>
+    <color name="linea4">#f75</color>
+    <color name="linea5">#C3C3</color>
+</resources>
