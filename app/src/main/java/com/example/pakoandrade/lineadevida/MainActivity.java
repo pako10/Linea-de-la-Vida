@@ -13,6 +13,18 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout ly4;
     LinearLayout ly5;
     LinearLayout ly6;
+
+    TextView tvDay;
+    TextView tvResponse;
+    TextView tvBeginHour;
+
+    String dateNow;
 
 
     final Handler handler = new Handler();
@@ -61,6 +79,18 @@ public class MainActivity extends AppCompatActivity {
         ly4 = (LinearLayout) findViewById(R.id.linearLayout4);
         ly5 = (LinearLayout) findViewById(R.id.linearLayout5);
 
+        tvDay = (TextView) findViewById(R.id.tvDay);
+        tvResponse = (TextView) findViewById(R.id.tvResponse);
+        tvBeginHour = (TextView) findViewById(R.id.tvHoraInicio);
+
+        Button btRevisar = (Button) findViewById(R.id.button);
+
+        btRevisar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkLifeLine();
+            }
+        });
 
 
         runnable.run();
@@ -70,6 +100,26 @@ public class MainActivity extends AppCompatActivity {
         iniReloj = new Thread(r);
         iniReloj.start();
           */
+
+        Time today = new Time(Time.getCurrentTimezone());
+        today.setToNow();
+        String monthday;
+        String month;
+        if (today.monthDay < 10){
+            monthday = "0" + today.monthDay;
+        }else {
+            monthday = String.valueOf(today.monthDay);
+        }
+
+        if (today.month + 1 < 10){
+            month = "0" + (today.month + 1);
+        }else {
+            month = String.valueOf(today.month + 1);
+        }
+        dateNow = String.valueOf(today.year + "-" + month + "-"+ monthday);
+        tvDay.setText(String.valueOf(dateNow));
+
+
 
     }
 
@@ -160,4 +210,34 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(runnable, 1000);
         }
     };
+
+    public void checkLifeLine(){
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        params.add("PID","394b4c86-98f9-4a5f-b992-bdf64f12a4a7");
+        params.add("Fecha",dateNow);
+
+
+        client.get("http://wsplannerregistro.cloudapp.net/wsRegistrro.svc/LineaVida", params, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Toast.makeText(MainActivity.this, "fallo", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                try {
+                    JSONObject jsonObject = new JSONObject(responseString);
+                    String s = jsonObject.getString("d");
+                   
+
+                    tvBeginHour.setText(s);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                tvResponse.setText(responseString);
+            }
+        });
+    }
 }
